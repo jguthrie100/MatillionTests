@@ -4,7 +4,7 @@ public class Test1 {
 	public int run(String str1, String str2) {
 		// Check strings are same length
 		if(str1.length() != str2.length()) {
-			System.out.println("Error: Both strings must be equal length");
+			System.out.println("Error: Strings must be both of equal length");
 			return -1;
 		}
 		

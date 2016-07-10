@@ -40,16 +40,16 @@ public class Test2 {
 		
 		// Get Pay Type selection
 		sql = "SELECT DISTINCT pay_type FROM position";
-		instruction = "Select a Pay Type: ";
+		instruction = "\nSelect a Pay Type: ";
 		String pay_type = displayMenu(sql, instruction);
 		
 		// Get Education Level selection
 		sql = "SELECT DISTINCT education_level FROM employee";
-		instruction = "Select an Education Level: ";
+		instruction = "\nSelect an Education Level: ";
 		String education_level = displayMenu(sql, instruction);
 		
 		// Print selection summary
-		System.out.println("\nDisplaying FoodMart employees with following attributes:");
+		System.out.println("\nDisplaying FoodMart employees with the following attributes:");
 		System.out.println("   Department: " + department_description);
 		System.out.println("   Pay Type:   " + pay_type);
 		System.out.println("   Education:  " + education_level);
@@ -92,24 +92,26 @@ public class Test2 {
 	 */
 	private String displayMenu(String sql, String instruction) throws SQLException {
 				
+		// Run SQL statement
 		Statement stmt = conn.createStatement();		
-		ResultSet choices = stmt.executeQuery(sql);
+		ResultSet choiceSet = stmt.executeQuery(sql);
 		
 		// Print user instruction
 		System.out.println(instruction);
 		
+		// Print the menu
 		// Loop through all choices and print each one
 		int lastRow = 0;
-		while(choices.next()) {
-			lastRow = choices.getRow();
-			System.out.println(lastRow + ": " + choices.getString(1));
+		while(choiceSet.next()) {
+			lastRow = choiceSet.getRow();
+			System.out.println(lastRow + ": " + choiceSet.getString(1));
 		}
 		
 		if(lastRow == 0) {
 			throw new SQLException("Menu unavailable as SQL Query returned no results");
 		}
 		
-		// Get user's menu selection
+		// Ask the user to select a menu item
 		// Loop Scanner input until valid integer option is entered
 		int selection = 0;
 		boolean validSelection = false;
@@ -136,11 +138,11 @@ public class Test2 {
 	    }
 		
 		// Get data from the relevant row based on user's selection
-		choices.absolute(selection);
-		String userSelection = choices.getString(1);
+		choiceSet.absolute(selection);
+		String userSelection = choiceSet.getString(1);
 		
 		// Close DB connections etc
-		choices.close();
+		choiceSet.close();
 		stmt.close();
 		
 		return userSelection;
@@ -148,11 +150,16 @@ public class Test2 {
 	
 	// Print SQL results to a formatted results table
 	private void printResults(ResultSet rs) throws SQLException {
+		/*
+		 * (***Future improvements would be to adapt the method so that no col names are hard coded
+		 *   and all data is retrieved using loops and column indexes, which would allow for
+		 *   any result set to be printed)
+		 */
 
 		// Colwidth array essentially specifies width of each col in the results table
 		int[] colWidth = {"Full Name".length(), "Birth Date".length(), "Hire Date".length(), "Gender".length()};
 		
-		// Make an initial pass through of the results to work out the longest value in each column and set col width
+		// Make an initial pass through all of the results to work out the longest value in each column and set col width
 		while(rs.next()) {
 			colWidth[0] = Math.max(rs.getString("full_name").length(), colWidth[0]);
 			colWidth[1] = Math.max(rs.getString("birth_date").length(), colWidth[1]);
@@ -160,7 +167,7 @@ public class Test2 {
 			colWidth[3] = Math.max(rs.getString("gender").length(), colWidth[3]);
 		}
 		
-		// Create horizontal line string
+		// Create horizontal line of dashes
 		int resultsTableWidth = colWidth[0] + colWidth[1] + colWidth[2] + colWidth[3] + 13;
 		String hLine = "";
 		for(int i=0; i<resultsTableWidth; i++) {
@@ -168,7 +175,8 @@ public class Test2 {
 		}
 		
 		// Create table heading
-		String tableHeading = "| " + String.format("%-"+colWidth[0]+"s", "Full Name") + " | " +
+		String tableHeading = "| " +
+		String.format("%-"+colWidth[0]+"s", "Full Name") + " | " +
 		String.format("%-"+colWidth[1]+"s", "Birth Date") + " | " +
 		String.format("%-"+colWidth[2]+"s", "Hire Date") + " | " +
 		String.format("%-"+colWidth[3]+"s", "Gender") + " |";
@@ -184,7 +192,8 @@ public class Test2 {
 		while(rs.next()) {
 			noResults = false;
 			
-			String rowOutput = "| " + String.format("%-"+colWidth[0]+"s", rs.getString("full_name")) + " | " +
+			String rowOutput = "| " +
+			String.format("%-"+colWidth[0]+"s", rs.getString("full_name")) + " | " +
 			String.format("%-"+colWidth[1]+"s", rs.getString("birth_date")) + " | " +
 			String.format("%-"+colWidth[2]+"s", rs.getString("hire_date")) + " | " +
 			String.format("%-"+colWidth[3]+"s", rs.getString("gender")) + " |";

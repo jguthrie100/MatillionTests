@@ -32,7 +32,7 @@ public class Test3 {
 		String[] townsOutput = new String[2];
 		
 		// Add 2 towns to output array
-		// Added while loop to repeat assignment just in case the same town gets added twice
+		// While loop repeats assignments just in case the same town gets added twice
 		while(townsOutput[0] == townsOutput[1]) {
 			townsOutput[0] = towns.get(rand.nextInt(towns.size()));
 			townsOutput[1] = towns.get(rand.nextInt(towns.size()));
@@ -59,7 +59,7 @@ public class Test3 {
 		// Get resulting input stream from Google API
 		Scanner scan = new Scanner(conn.getInputStream());
 		
-		// Build XML string
+		// Build XML results string
 		String xmlOutput = "";
 		while(scan.hasNext()) {
 			xmlOutput += scan.nextLine();
@@ -72,17 +72,15 @@ public class Test3 {
 		int end = xmlOutput.indexOf("</text>");
 		String distance = "";
 		
-		try {
-			distance = xmlOutput.substring(start, end);
-		} catch(StringIndexOutOfBoundsException e) {
-			/*
-			 * Sometimes gets a StringIndexOutOfBoundsException
-			 * Typically means something was wrong with the request (i.e. Google couldn't parse address)
-			 * and unexpected XML containing errors (and no <text> tag) was returned
-			 * - Recursively keep running test until a valid result is received
-			 */
+		// If start or end index is -1, then it means <text> / </text> could not be found.
+		//    (usually because Google couldn't parse one of the town locations)
+		//
+		//  Recursively repeat the test until we get a valid result containing <text> / </text>
+		if(start < 0 || end < 0) {
 			String towns[] = getTowns();
 			distance = getDistanceBetweenTowns(towns[0], towns[1]);
+		} else {
+			distance = xmlOutput.substring(start, end);
 		}
 		
 		scan.close();
